@@ -18,3 +18,10 @@ function read_unsigned() : int =
 	if ok = 1 then n else -1
     end
 )
+
+var a : int := read_unsigned()
+
+in 
+    print_int(a * 2);
+    print("\n")
+end
