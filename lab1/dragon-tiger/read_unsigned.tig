@@ -3,29 +3,27 @@ let
     let
       var c := getchar()
       var n := 0
-      var ok := 1
       var has_digit := 0
+      var ok := 1
     in
-      while c <> "\n" & c <> "" do
+      while (c <> "\n") & (c <> "") & (ok = 1) do
         (
- 	  if ord(c) >= ord("0") & ord(c) <= ord("9") then
-	    (
+          if ord(c) >= ord("0") & ord(c) <= ord("9") then
+            (
               has_digit := 1;
               n := n * 10 + ord(c) - ord("0")
-	    )
+            )
           else
-	    ok := 0;
-
-	  c := getchar()
+            ok := 0;
+          if ok = 1 then
+            c := getchar()
+          else
+            c := "\n"
         );
-
       if ok = 1 & has_digit = 1 then n else -1
     end
-
   var a : int := read_unsigned()
-
-in 
-    print_int(a * 2);
-    print("\n")
+in
+  print_int(a * 2);
+  print("\n")
 end
-
