@@ -24,6 +24,7 @@ static std::string string_buffer;
 lineterminator  \r|\n|\r\n
 blank           [ \t\f]
 id              [a-zA-Z][_0-9a-zA-Z]*
+integer         0|[1-9][0-9]*
 
  /* Declare two start conditions (sub-automate states) to handle
     strings and comments */
@@ -83,6 +84,20 @@ end      return yy::tiger_parser::make_END(loc);
 break    return yy::tiger_parser::make_BREAK(loc);
 function return yy::tiger_parser::make_FUNCTION(loc);
 var      return yy::tiger_parser::make_VAR(loc);
+
+
+0{integer} {
+  utils::error(loc, "integer literal cannot start with zero");
+}
+
+{integer} {
+  long value = atol(yytext);
+
+  if (value > TIGER_INT_MAX)
+    utils::error(loc, "integer literal too large");
+
+  return yy::tiger_parser::make_INT(static_cast<int>(value), loc);
+}
 
  /* Identifiers */
 {id}       return yy::tiger_parser::make_ID(Symbol(yytext), loc);
