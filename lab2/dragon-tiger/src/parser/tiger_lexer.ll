@@ -72,7 +72,8 @@ integer         0|[1-9][0-9]*
 ":="     return yy::tiger_parser::make_ASSIGN(loc);
 
  /* Keywords */
-
+if       return yy::tiger_parser::make_IF(loc);
+then     return yy::tiger_parser::make_THEN(loc);
 else     return yy::tiger_parser::make_ELSE(loc);
 while    return yy::tiger_parser::make_WHILE(loc);
 for      return yy::tiger_parser::make_FOR(loc);

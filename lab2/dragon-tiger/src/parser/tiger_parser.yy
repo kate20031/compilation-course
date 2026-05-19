@@ -91,7 +91,7 @@ using utils::nl;
 %type <Decl *> decl funcDecl varDecl;
 %type <std::vector<Decl *>> decls;
 %type <Expr *> expr stringExpr intExpr seqExpr callExpr opExpr negExpr
-            assignExpr whileExpr forExpr breakExpr letExpr var;
+            assignExpr whileExpr forExpr breakExpr letExpr ifExpr var;
 
 %type <std::vector<Expr *>> exprs nonemptyexprs;
 %type <std::vector<Expr *>> arguments nonemptyarguments;
@@ -104,7 +104,8 @@ using utils::nl;
 
 // Declare precedence rules
 
-%nonassoc FUNCTION VAR TYPE DO OF ASSIGN;
+%nonassoc FUNCTION VAR TYPE DO OF ASSIGN THEN;
+%nonassoc ELSE;
 %left OR;
 %left AND;
 %nonassoc EQ NEQ LT LE GT GE;
@@ -135,6 +136,7 @@ expr: stringExpr { $$ = $1; }
    | forExpr { $$ = $1; }
    | breakExpr { $$ = $1; }
    | letExpr { $$ = $1; }
+   | ifExpr { $$ = $1; }
 ;
 
 varDecl: VAR ID typeannotation ASSIGN expr
@@ -198,6 +200,12 @@ assignExpr: ID ASSIGN expr
 ;
 
 whileExpr: WHILE expr DO expr { $$ = new WhileLoop(@1, $2, $4); }
+;
+
+ifExpr: IF expr THEN expr ELSE expr 
+  { $$ = new IfThenElse(@1, $2, $4, $6); }
+  | IF expr THEN expr %prec THEN
+  { $$ = new IfThenElse(@1, $2, $4, new Sequence(nl, std::vector<Expr *>())); }
 ;
 
 forExpr: FOR ID ASSIGN expr TO expr DO expr
