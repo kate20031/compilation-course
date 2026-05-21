@@ -4,6 +4,7 @@
 #include "../ast/ast_dumper.hh"
 #include "../parser/parser_driver.hh"
 #include "../utils/errors.hh"
+#include "../ast/evaluator.hh"
 
 int main(int argc, char **argv) {
   std::vector<std::string> input_files;
@@ -12,6 +13,7 @@ int main(int argc, char **argv) {
   options.add_options()
   ("help,h", "describe arguments")
   ("dump-ast", "dump the parsed AST")
+  ("eval,e", "evaluate the parsed AST")
   ("trace-parser", "enable parser traces")
   ("trace-lexer", "enable lexer traces")
   ("verbose,v", "be verbose")
@@ -48,6 +50,13 @@ int main(int argc, char **argv) {
     parser_driver.result_ast->accept(dumper);
     dumper.nl();
   }
+
+  
+  if (vm.count("eval")) {
+    ast::Evaluator evaluator;
+    std::cout << parser_driver.result_ast->accept(evaluator) << std::endl;
+  }
+  
   delete parser_driver.result_ast;
   return 0;
 }
