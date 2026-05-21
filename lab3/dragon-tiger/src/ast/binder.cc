@@ -135,10 +135,31 @@ void Binder::visit(Sequence &seq) {
     expr->accept(*this);
   }
 }
+
 void Binder::visit(Let &let) {
+    push_scope();
+
+  for (Decl *decl : let.get_decls()) {
+    decl->accept(*this);
+  }
+
+  let.get_sequence().accept(*this);
+
+  pop_scope();
 }
 
 void Binder::visit(Identifier &id) {
+  Decl &decl = find(id.loc, id.name);
+
+  auto var_decl = dynamic_cast<VarDecl *>(&decl);
+  if (!var_decl) {
+    error(id.loc, id.name.get() + " is not a variable");
+  }
+
+  int current_depth = functions.empty() ? 0 : functions.size() - 1;
+
+  id.set_decl(var_decl);
+  id.set_depth(current_depth);
 }
 
 void Binder::visit(IfThenElse &ite) {
@@ -148,6 +169,16 @@ void Binder::visit(IfThenElse &ite) {
 }
 
 void Binder::visit(VarDecl &decl) {
+  if (auto expr = decl.get_expr()) {
+    expr->accept(*this);
+  }
+
+  if (decl.get_depth() == -1) {
+    int current_depth = functions.empty() ? 0 : functions.size() - 1;
+    decl.set_depth(current_depth);
+  }
+
+  enter(decl);
 }
 
 void Binder::visit(FunDecl &decl) {
