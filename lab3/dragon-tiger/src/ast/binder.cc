@@ -137,7 +137,15 @@ void Binder::visit(Sequence &seq) {
 }
 
 void Binder::visit(Let &let) {
-    push_scope();
+  push_scope();
+
+  for (Decl *decl : let.get_decls()) {
+    if (auto fun_decl = dynamic_cast<FunDecl *>(decl)) {
+      if (fun_decl->get_depth() == -1)
+        fun_decl->set_depth(functions.size());
+      enter(*fun_decl);
+    }
+  }
 
   for (Decl *decl : let.get_decls()) {
     decl->accept(*this);
@@ -184,11 +192,39 @@ void Binder::visit(VarDecl &decl) {
 void Binder::visit(FunDecl &decl) {
   set_parent_and_external_name(decl);
   functions.push_back(&decl);
-  /* ... put your code here ... */
+
+  push_scope();
+
+  for (VarDecl *param : decl.get_params()) {
+    if (param->get_depth() == -1)
+      param->set_depth(functions.size() - 1);
+    enter(*param);
+  }
+
+  if (auto expr = decl.get_expr()) {
+    expr->accept(*this);
+  }
+
+  pop_scope();
   functions.pop_back();
 }
 
 void Binder::visit(FunCall &call) {
+  Decl &decl = find(call.loc, call.func_name);
+
+  auto fun_decl = dynamic_cast<FunDecl *>(&decl);
+  if (!fun_decl) {
+    error(call.loc, call.func_name.get() + " is not a function");
+  }
+
+  int current_depth = functions.empty() ? 0 : functions.size() - 1;
+
+  call.set_decl(fun_decl);
+  call.set_depth(current_depth);
+
+  for (Expr *arg : call.get_args()) {
+    arg->accept(*this);
+  }
 }
 
 void Binder::visit(WhileLoop &loop) {
