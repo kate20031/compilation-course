@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <sstream>
 
 #include "binder.hh"
@@ -125,11 +126,15 @@ void Binder::visit(StringLiteral &literal) {
 }
 
 void Binder::visit(BinaryOperator &op) {
+  op.get_left().accept(*this);
+  op.get_right().accept(*this);
 }
 
 void Binder::visit(Sequence &seq) {
+  for (Expr *expr : seq.get_exprs()) {
+    expr->accept(*this);
+  }
 }
-
 void Binder::visit(Let &let) {
 }
 
@@ -137,6 +142,9 @@ void Binder::visit(Identifier &id) {
 }
 
 void Binder::visit(IfThenElse &ite) {
+  ite.get_condition().accept(*this);
+  ite.get_then_part().accept(*this);
+  ite.get_else_part().accept(*this);
 }
 
 void Binder::visit(VarDecl &decl) {
@@ -162,6 +170,8 @@ void Binder::visit(Break &b) {
 }
 
 void Binder::visit(Assign &assign) {
+  assign.get_lhs().accept(*this);
+  assign.get_rhs().accept(*this);
 }
 
 } // namespace binder
