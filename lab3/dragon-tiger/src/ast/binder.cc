@@ -279,6 +279,13 @@ void Binder::visit(Break &b) {
 
 void Binder::visit(Assign &assign) {
   assign.get_lhs().accept(*this);
+
+  if (auto decl = assign.get_lhs().get_decl()) {
+    if (decl->read_only) {
+      error(assign.get_lhs().loc, "cannot assign to a read-only variable");
+    }
+  }
+
   assign.get_rhs().accept(*this);
 }
 
