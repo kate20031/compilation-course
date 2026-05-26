@@ -168,6 +168,16 @@ void Binder::visit(Identifier &id) {
 
   id.set_decl(var_decl);
   id.set_depth(current_depth);
+
+  if (current_depth > var_decl->get_depth()) {
+    var_decl->set_escapes();
+
+    if (!functions.empty()) {
+      auto &escaping = functions.back()->get_escaping_decls();
+      if (std::find(escaping.begin(), escaping.end(), var_decl) == escaping.end())
+        escaping.push_back(var_decl);
+    }
+  }
 }
 
 void Binder::visit(IfThenElse &ite) {
