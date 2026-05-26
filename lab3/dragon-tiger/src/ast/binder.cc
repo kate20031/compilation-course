@@ -238,12 +238,43 @@ void Binder::visit(FunCall &call) {
 }
 
 void Binder::visit(WhileLoop &loop) {
+  loop.get_condition().accept(*this);
+
+  loops.push_back(&loop);
+  loop.get_body().accept(*this);
+  loops.pop_back();
 }
 
 void Binder::visit(ForLoop &loop) {
+  if (auto expr = loop.get_variable().get_expr()) {
+    expr->accept(*this);
+  }
+
+  loop.get_high().accept(*this);
+
+  push_scope();
+
+  VarDecl &var = loop.get_variable();
+  if (var.get_depth() == -1) {
+    int current_depth = functions.empty() ? 0 : functions.size() - 1;
+    var.set_depth(current_depth);
+  }
+
+  enter(var);
+
+  loops.push_back(&loop);
+  loop.get_body().accept(*this);
+  loops.pop_back();
+
+  pop_scope();
 }
 
 void Binder::visit(Break &b) {
+  if (loops.empty()) {
+    error(b.loc, "break used outside of a loop");
+  }
+
+  b.set_loop(loops.back());
 }
 
 void Binder::visit(Assign &assign) {
