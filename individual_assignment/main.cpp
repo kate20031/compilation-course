@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -15,6 +16,13 @@ enum class TokenType {
     ERROR_COMMENT,
     ERROR_FLOAT,
     END_OF_FILE
+};
+
+struct Token {
+    TokenType type;
+    string value;
+    int line;
+    int column;
 };
 
 int main() {
