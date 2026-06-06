@@ -87,6 +87,10 @@ private:
         return ch;
     }
 
+    void addToken(TokenType type, const string& value, int tokenLine, int tokenColumn) {
+        tokens.push_back({type, value, tokenLine, tokenColumn});
+    }
+
  
 
 public:
