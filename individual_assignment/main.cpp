@@ -53,6 +53,14 @@ private:
     int column;
     vector<Token> tokens;
 
+    char currentChar() const {
+        if (pos >=  text.length() ) {
+            return '\0';
+        }
+
+        return text[pos];
+    }
+
 public:
     Scanner(const string& inputText) {
         text = inputText;
