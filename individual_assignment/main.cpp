@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cctype>
 
 using namespace std;
 
@@ -91,6 +92,18 @@ private:
         tokens.push_back({type, value, tokenLine, tokenColumn});
     }
 
+    void scanInteger() {
+        size_t startPos = pos;
+        int startLine = line;
+        int startColumn = column;
+
+        while (isdigit(currentChar())) {
+            advance();
+        }
+
+        string value = text.substr(startPos, pos - startPos);
+        addToken(TokenType::INT, value, startLine, startColumn);
+    }
  
 
 public:
@@ -103,6 +116,18 @@ public:
     
 
     vector<Token> scan() {
+        while (currentChar()  != '\0') {
+            char ch = currentChar();
+
+            if (isspace(ch)) {
+                advance();
+            } else if (isdigit(ch )) {
+                scanInteger();
+            } else {
+                advance();
+            }
+        }
+
         return tokens;
     }
 };
@@ -115,7 +140,13 @@ int main() {
     Scanner scanner(input);
     vector<Token> tokens = scanner.scan();
 
-    cout << "Scanner  createdd successfully" << endl;
+        for (const Token& token : tokens) {
+    cout << " token type: " << tokenTypeToString(token.type) << endl
+            << " token value: " << token.value << endl
+            << "  line: " << token.line << endl
+            << " column: " << token.column 
+            << endl;
+    }
 
     return 0;
 }
