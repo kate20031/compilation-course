@@ -92,7 +92,7 @@ private:
         tokens.push_back({type, value, tokenLine, tokenColumn});
     }
 
-    void scanInteger() {
+    void scanNumber() {
         size_t startPos = pos;
         int startLine = line;
         int startColumn = column;
@@ -101,8 +101,45 @@ private:
             advance();
         }
 
+        bool isFloat = false;
+
+        if (currentChar() == '.' && isdigit(peek())) {
+            isFloat = true;
+            advance();
+
+            while (isdigit(currentChar())) {
+                advance();
+
+            }
+        }
+
+        if (currentChar() == 'e' ||   currentChar() == 'E') {
+            isFloat = true;
+            advance();
+
+            if (currentChar() == '+' || currentChar()  == '-') {
+                advance();
+            }
+
+            if (!isdigit(currentChar())) {
+                string value = text.substr(startPos, pos - startPos);
+                addToken(TokenType::ERROR_FLOAT, value, startLine, startColumn);
+                return;
+            }
+
+            while (isdigit(currentChar())) {
+                advance();
+            }
+        }
+
         string value = text.substr(startPos, pos - startPos);
-        addToken(TokenType::INT, value, startLine, startColumn);
+
+
+        if (isFloat) {
+            addToken(TokenType::FLOAT, value, startLine, startColumn);
+        } else {
+            addToken(TokenType::INT, value, startLine, startColumn);
+        }
     }
  
 
@@ -122,7 +159,7 @@ public:
             if (isspace(ch)) {
                 advance();
             } else if (isdigit(ch )) {
-                scanInteger();
+                scanNumber();
             } else {
                 advance();
             }
