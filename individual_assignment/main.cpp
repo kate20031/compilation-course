@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -42,6 +43,29 @@ string tokenTypeToString(TokenType type) {
         default: return "UNDEFINED";
     }
 }
+
+class Scanner {
+private:
+
+    string text;
+    size_t pos;
+    int line;
+    int column;
+    vector<Token> tokens;
+
+public:
+    Scanner(const string& inputText) {
+        text = inputText;
+        pos = 0;
+        line = 1;
+        column = 1;
+    }
+    
+
+    vector<Token> scan() {
+        return tokens;
+    }
+};
 
 int main() {
     cout << "OCaml scanner started" << endl;
