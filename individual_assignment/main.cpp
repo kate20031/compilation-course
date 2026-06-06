@@ -61,6 +61,17 @@ private:
         return text[pos];
     }
 
+    char peek(size_t offset  = 1) const {
+        size_t index = pos +  offset;
+
+
+        if (index >= text.length()) {
+            return '\0';
+        }
+
+        return text[index];
+    }
+
 public:
     Scanner(const string& inputText) {
         text = inputText;
