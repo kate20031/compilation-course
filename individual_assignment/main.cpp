@@ -87,6 +87,8 @@ private:
         return ch;
     }
 
+ 
+
 public:
     Scanner(const string& inputText) {
         text = inputText;
@@ -102,6 +104,14 @@ public:
 };
 
 int main() {
-    cout << "OCaml scanner started" << endl;
+    cout << "OCaml scanner  started" << endl;
+
+    string input = "let x = 51423";
+
+    Scanner scanner(input);
+    vector<Token> tokens = scanner.scan();
+
+    cout << "Scanner  createdd successfully" << endl;
+
     return 0;
 }
