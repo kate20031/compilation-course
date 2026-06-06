@@ -72,6 +72,21 @@ private:
         return text[index];
     }
 
+
+    char advance() {
+        char ch = currentChar();
+
+        if (ch == '\n') {
+            line++;
+            column = 1;
+        } else {
+            column++;
+        }
+
+        pos++;
+        return ch;
+    }
+
 public:
     Scanner(const string& inputText) {
         text = inputText;
