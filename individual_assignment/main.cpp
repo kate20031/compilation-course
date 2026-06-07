@@ -164,6 +164,33 @@ private:
         string value = text.substr(startPos, pos - startPos);
         addToken(TokenType::ERROR_STRING, value, startLine, startColumn);
     }
+
+
+    void scanComment() {
+        size_t startPos = pos;
+        int startLine =  line;
+        int startColumn = column;
+
+        advance();
+        advance();
+
+        while (currentChar() != '\0') {
+            if ( currentChar() == '*' && peek()  == ')') {
+                advance();
+                advance();
+
+
+                string value = text.substr(startPos, pos  - startPos);
+                addToken(TokenType::COMMENT, value , startLine, startColumn);
+                return;
+            }
+
+            advance();
+        }
+
+        string value = text.substr(startPos, pos - startPos);
+        addToken(TokenType::UNKNOWN, value, startLine, startColumn);
+    }
  
 
 public:
@@ -181,7 +208,11 @@ public:
 
             if (isspace(ch)) {
                 advance();
-            } else if (ch == '"') {
+            }
+            else if (ch == '(' && peek() == '*') {
+                scanComment();
+            }
+            else if (ch == '"') {
                 scanString();
             } 
             else if (isdigit(ch )) {
