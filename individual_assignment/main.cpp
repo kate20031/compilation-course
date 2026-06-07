@@ -141,6 +141,29 @@ private:
             addToken(TokenType::INT, value, startLine, startColumn);
         }
     }
+
+    void scanString() {
+        size_t startPos = pos;
+        int startLine = line;
+        int startColumn = column;
+
+        advance(); 
+
+        while (currentChar() != '\0') {
+            if (currentChar() == '"') {
+                advance(); 
+
+                string value = text.substr(startPos, pos - startPos);
+                addToken(TokenType::STRING, value, startLine, startColumn);
+                return;
+            } else {
+                advance();
+            }
+        }
+
+        string value = text.substr(startPos, pos - startPos);
+        addToken(TokenType::ERROR_STRING, value, startLine, startColumn);
+    }
  
 
 public:
@@ -158,7 +181,10 @@ public:
 
             if (isspace(ch)) {
                 advance();
-            } else if (isdigit(ch )) {
+            } else if (ch == '"') {
+                scanString();
+            } 
+            else if (isdigit(ch )) {
                 scanNumber();
             } else {
                 advance();
