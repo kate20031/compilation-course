@@ -232,22 +232,33 @@ public:
             }
         }
 
+        addToken(TokenType::END_OF_FILE, "", line, column);
+
         return tokens;
     }
 };
 
 int main() {
-    cout << "OCaml scanner  started" << endl;
+    string input;
+    string line;
 
-    string input = "let x = 51423";
+
+    cout << "Enter OCaml code : \n";
+
+    while (getline(cin, line)) {
+        input += line + "\n";
+    }
 
     Scanner scanner(input);
     vector<Token> tokens = scanner.scan();
 
+
+    cout << "\nTokens:\n";
+
         for (const Token& token : tokens) {
     cout << " token type: " << tokenTypeToString(token.type) << endl
             << " token value: " << token.value << endl
-            << "  line: " << token.line << endl
+            << "  line: "   << token.line << endl
             << " column: " << token.column 
             << endl;
     }
