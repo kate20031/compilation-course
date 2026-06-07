@@ -191,6 +191,16 @@ private:
         string value = text.substr(startPos, pos - startPos);
         addToken(TokenType::UNKNOWN, value, startLine, startColumn);
     }
+
+    void scanUnknown() {
+        int startLine = line;
+        int startColumn = column;
+
+        string value;
+        value += advance();
+
+        addToken(TokenType::UNKNOWN, value, startLine, startColumn);
+    }
  
 
 public:
@@ -218,7 +228,7 @@ public:
             else if (isdigit(ch )) {
                 scanNumber();
             } else {
-                advance();
+                scanUnknown();
             }
         }
 
