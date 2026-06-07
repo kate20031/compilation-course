@@ -10,9 +10,7 @@ enum class TokenType {
     FLOAT,
     STRING,
     COMMENT,
-    IDENTIFIER,
-    KEYWORD,
-     SYMBOL,
+    ERROR_INT,
     UNKNOWN,
     ERROR_STRING,
     ERROR_COMMENT,
@@ -33,9 +31,7 @@ string tokenTypeToString(TokenType type) {
         case TokenType::FLOAT: return  "FLOAT";
         case TokenType::STRING: return  "STRING";
         case TokenType::COMMENT: return "COMMENT";
-        case TokenType::IDENTIFIER:  return "IDENTIFIER";
-        case TokenType::KEYWORD: return "KEYWORD";
-        case TokenType::SYMBOL: return "SYMBOL";
+        case TokenType::ERROR_INT: return "ERROR_INT";
         case  TokenType::UNKNOWN: return "UNKNOWN";
         case TokenType::ERROR_STRING: return "ERROR_STRING";
         case TokenType::ERROR_COMMENT: return "ERROR_COMMENT";
@@ -92,6 +88,21 @@ private:
         tokens.push_back({type, value, tokenLine, tokenColumn});
     }
 
+    void scanInvalidDotFloat() {
+        size_t startPos = pos;
+        int startLine = line;
+        int startColumn = column;
+
+        advance();
+
+        while (isdigit(currentChar())) {
+            advance();
+        }
+
+        string value = text.substr(startPos, pos - startPos);
+        addToken(TokenType::ERROR_FLOAT, value, startLine, startColumn);
+    }
+
     void scanNumber() {
         size_t startPos = pos;
         int startLine = line;
@@ -103,23 +114,9 @@ private:
 
         bool isFloat = false;
 
-        if (currentChar() == '.' && isdigit(peek())) {
+        if (currentChar() == '.') {
             isFloat = true;
             advance();
-
-            while (isdigit(currentChar())) {
-                advance();
-
-            }
-        }
-
-        if (currentChar() == 'e' ||   currentChar() == 'E') {
-            isFloat = true;
-            advance();
-
-            if (currentChar() == '+' || currentChar()  == '-') {
-                advance();
-            }
 
             if (!isdigit(currentChar())) {
                 string value = text.substr(startPos, pos - startPos);
@@ -130,6 +127,24 @@ private:
             while (isdigit(currentChar())) {
                 advance();
             }
+        }
+
+
+        if (isalpha(currentChar()) || currentChar() == '_') {
+            while (isalnum(currentChar()) || currentChar() == '_') {
+                advance();
+            }
+
+            string value = text.substr(startPos, pos - startPos);
+
+            if (isFloat) {
+                addToken(TokenType::ERROR_FLOAT, value, startLine, startColumn);
+            } else {
+                addToken(TokenType::ERROR_INT, value, startLine, startColumn);
+            }
+
+
+            return;
         }
 
         string value = text.substr(startPos, pos - startPos);
@@ -189,7 +204,7 @@ private:
         }
 
         string value = text.substr(startPos, pos - startPos);
-        addToken(TokenType::UNKNOWN, value, startLine, startColumn);
+        addToken(TokenType::ERROR_COMMENT, value, startLine, startColumn);
     }
 
     void scanUnknown() {
@@ -225,6 +240,10 @@ public:
             else if (ch == '"') {
                 scanString();
             } 
+            else if (ch == '.' && isdigit(peek())) {
+                scanInvalidDotFloat();
+            }
+
             else if (isdigit(ch )) {
                 scanNumber();
             } else {
